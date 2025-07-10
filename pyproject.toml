@@ -1,0 +1,70 @@
+[project]
+name = "unitsrvpy"
+version = "0.1.0"
+description = "A python gRPC server for unit devices"
+authors = [
+    {name = "unitexe", email = "unitexe70@gmail.com"},
+]
+dependencies = [
+    "grpcio-reflection>=1.73.1", 
+    "grpcio>=1.73.1", 
+    "protobuf>=6.31.1", 
+    "googleapis-common-protos>=1.70.0"
+]
+requires-python = ">=3.13"
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment::Console",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+  "Topic :: System :: Monitoring",
+  "Topic :: System :: Networking",
+]
+
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[project.scripts]
+unitsrvpy-cli = "unitsrvpy.entrypoint:main"
+
+
+[dependency-groups]
+lint = [
+    "ruff>=0.12.2",
+]
+gen = [
+    "grpcio-tools>=1.73.1",
+    "mypy-protobuf>=3.6.0",
+]
+
+
+[tool.ruff]
+exclude = ["*pb2*.py", ".venv"]
+
+
+[tool.pdm]
+distribution = true
+
+
+[tool.pdm.scripts]
+pre_codegen = {call = "tools.codegen:clean"}
+codegen = {call = "tools.codegen:gen"}
+format = "ruff format src/unitsrvpy tools"
+fix-imports = "ruff check --select I --fix src/unitsrvpy tools"
+lint = "ruff check --fix"
+all = {composite = ["lint", "fix-imports", "format"]}
+pre_build = {cmd = "pdm run codegen"}
+
+
+[tool.pdm.build]
+includes = [
+    "src/unitsrvpy/",
+    "src/wireguard_pb2.py",
+    "src/wireguard_pb2_grpc.py",
+]
